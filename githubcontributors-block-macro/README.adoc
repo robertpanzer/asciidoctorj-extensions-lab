@@ -1,0 +1,30 @@
+= Github contributors extension
+:url-asciidoctorj: https://github.com/asciidoctor/asciidoctorj
+:url-groovy: http://groovy-lang.org
+
+This is a block macro that renders the contributors for any given project on GitHub in a table.
+Every cell contains the avatar image and login of a contributor.
+
+To invoke the macro in your document just add the following snippet:
+
+----
+githubcontributors::asciidoctor/asciidoctorj[]
+----
+
+This will render a table of avatar images and logins of the contributors of the {url-asciidoctorj}[AsciidoctorJ] project.
+
+The macro supports a parameter `columns` that defines the number of columns of the resulting table.
+If not defined this parameter defaults to 3.
+
+To make this extension available to AsciidoctorJ pass the jar of this project to `asciidoctorj`.
+As this extension is written in {url-groovy}[Groovy] a `groovy-all.jar` must also be added to classpath.
+
+Thus rendering a document containing the `githubcontributors` macro should look like this:
+
+----
+asciidoctorj --classpath .../githubcontributors-block-macro-1.0.0-SNAPSHOT.jar:.../groovy-all-2.3.9.jar mydocument.adoc`
+----
+
+[NOTE]
+This extension requires at least AsciidoctorJ 1.6.0.
+As this version is not released at the time of writing you have to build AsciidoctorJ yourself from {url-asciidoctorj}[the sources].

@@ -1,0 +1,3 @@
+= Contributors of AsciidoctorJ
+
+githubcontributors::asciidoctor/asciidoctorj[columns="4"]

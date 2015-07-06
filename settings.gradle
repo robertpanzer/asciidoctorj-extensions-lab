@@ -1,0 +1,6 @@
+rootProject.name = 'asciidoctorj-extensions-lab'
+
+include \
+  'githubcontributors-block-macro'
+
+
