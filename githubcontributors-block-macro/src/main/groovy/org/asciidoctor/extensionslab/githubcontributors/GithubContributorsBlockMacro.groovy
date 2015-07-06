@@ -3,10 +3,8 @@ package org.asciidoctor.extensionslab.githubcontributors
 import groovy.json.JsonSlurper
 
 import org.asciidoctor.ast.AbstractBlock
-import org.asciidoctor.ast.Cell
 import org.asciidoctor.ast.Column
 import org.asciidoctor.ast.DocumentRuby
-import org.asciidoctor.ast.Inline
 import org.asciidoctor.ast.Row
 import org.asciidoctor.ast.Table
 import org.asciidoctor.extension.BlockMacroProcessor
@@ -19,6 +17,9 @@ import org.asciidoctor.extension.Name
         @DefaultAttribute(key = 'columns', value = '3')
 ])
 class GithubContributorsBlockMacro extends BlockMacroProcessor {
+
+
+    public static final String IMAGE = 'image'
 
     @Override
     Object process(AbstractBlock parent, String target, Map<String, Object> map) {
@@ -48,14 +49,13 @@ class GithubContributorsBlockMacro extends BlockMacroProcessor {
             nContributors.eachWithIndex {
                 contributor, index ->
                     DocumentRuby innerDocument = createDocument(table.document)
-                    innerDocument.blocks << createBlock(innerDocument, 'image', null, [type: 'image', target: contributor.avatar_url, width: '128px'])
+                    innerDocument.blocks << createBlock(innerDocument, IMAGE, null, [type: IMAGE, target: contributor.avatar_url, width: '128px'])
                     innerDocument.blocks << createBlock(innerDocument, 'paragraph', contributor.login, )
-                    Cell avatarCell = createTableCell(table.columns[index], innerDocument);
-                    row.cells << avatarCell
+                    row.cells << createTableCell(table.columns[index], innerDocument)
             }
 
             (nContributors.size() - numberOfColumns).times { it ->
-                Cell avatarCell = createTableCell(table.columns[numberOfColumns - it], "");
+                row.cells << createTableCell(table.columns[numberOfColumns - it], '')
             }
             table.body << row
         }

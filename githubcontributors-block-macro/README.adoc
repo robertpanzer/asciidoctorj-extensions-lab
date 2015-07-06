@@ -22,7 +22,7 @@ As this extension is written in {url-groovy}[Groovy] a `groovy-all.jar` must als
 Thus rendering a document containing the `githubcontributors` macro should look like this:
 
 ----
-asciidoctorj --classpath .../githubcontributors-block-macro-1.0.0-SNAPSHOT.jar:.../groovy-all-2.3.9.jar mydocument.adoc`
+asciidoctorj --classpath .../githubcontributors-block-macro-1.0.0-SNAPSHOT.jar:.../groovy-all-2.3.9.jar mydocument.adoc
 ----
 
 [NOTE]
