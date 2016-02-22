@@ -1,0 +1,54 @@
+= Source block macro extension
+:empty: 
+The source block macro allows to insert java source files by referencing the fully qualified class name instead of the path.
+This macro is written in Java meaning that it will only run with AsciidoctorJ.
+
+If you have a java class in your project called `foo.Bar` you can simply render a source block containing this class via the `source` macro:
+
+  source::foo.Bar[]
+
+This is by far clearer than the traditional way to include this class.
+If your Asciidoctor document is located at `src/main/asciidoc` you would have to reference the source file relative to this path leading to this include:
+
+ [source,java]
+ ----
+ include::../../main/java/foo/Bar.java[]
+ ----
+
+== Locating source files
+
+By default the macro will search for a directory called `src` above the current `docdir`.
+Starting from this directory the extension will recursively search for a relative path that matches the fully qualified classname.
+So for the class name `foo.Bar` it will search for a file `Bar.java` that is in a directory `foo`.
+
+If you have a different layout that does not have all sources and documents below a common `src` directory you can define it with the attribute `source-base-dir`.
+Say that all your sources are in a directory `my-sources` relative to the current working directory you define the source base directory like this:
+
+[subs="attributes"]
+ = My awesome document
+ :source-base-dir: my-sources
+ {empty}
+ source::foo.Bar[]
+
+== Insert only a method of a class
+
+When you only want to insert a certain method of a class you would usually make use of tags or line numbers to select parts of the source file.
+The source macro uses an embedded antlr based Java8 parser to parse the source file and cut out only the selected method.
+To show only the method `myMethod` of the class `foo.Bar` you can directly select the method like this:
+
+  source::foo.Bar#myMethod[]
+
+== Insert parts of a source files via tags
+
+As with the normal include macro you can also define tags to include parts of a document:
+
+  source::foo.Bar[tags="tagA, tagB"]
+
+
+== Using the macro
+
+To use the macro you currently have to build the project yourself and add the resulting jar file to the classpath.
+
+  $ ./gradlew build
+  ...
+  $ asciidoctorj -cp build/libs/source-block-macro-1.0.0-SNAPSHOT.jar mydocument.adoc
