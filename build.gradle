@@ -42,9 +42,12 @@ subprojects {
   sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_7
 
   repositories {
-//    if (project.hasProperty('useMavenLocal') && project.useMavenLocal.toBoolean()) {
+    if (project.hasProperty('useMavenLocal') && project.useMavenLocal.toBoolean()) {
       mavenLocal()
-//    }
+    }
+    maven {
+      url 'http://oss.jfrog.org/oss-snapshot-local/'
+    }
     jcenter()
   }
 
