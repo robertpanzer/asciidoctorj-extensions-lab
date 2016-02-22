@@ -1,0 +1,5 @@
+dependencies {
+    //compile "org.asciidoctor:asciidoctorj:1.5.4"
+
+    testCompile "org.jsoup:jsoup:$jsoupVersion"
+}

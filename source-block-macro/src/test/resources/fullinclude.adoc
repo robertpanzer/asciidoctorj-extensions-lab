@@ -1,0 +1,5 @@
+= Including an entire source file
+
+This test includes a complete source file.
+
+source::org.asciidoctor.extensionslab.source.ExtensionRegistrar[]
