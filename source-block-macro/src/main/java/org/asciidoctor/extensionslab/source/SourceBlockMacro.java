@@ -2,38 +2,62 @@ package org.asciidoctor.extensionslab.source;
 
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.BlockMacroProcessor;
+import org.asciidoctor.extension.DefaultAttribute;
+import org.asciidoctor.extension.DefaultAttributes;
 import org.asciidoctor.extension.Name;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Name("source")
+@DefaultAttributes({
+    @DefaultAttribute(key = SourceBlockMacro.ATTR_TYPE, value = "java")
+})
 public class SourceBlockMacro extends BlockMacroProcessor {
 
+    static final String ATTR_TYPE = "type";
+
+    static final String ATTR_TAGS = "tags";
+
     @Override
-    public Object process(StructuralNode parent, String target, Map<String, Object> map) {
+    public Object process(StructuralNode parent, String target, Map<String, Object> attributes) {
 
         final String className = extractClassName(target);
+        final String[] classNameParts = className.split("\\$");
+
         final String memberName = extractMemberName(target);
 
-        final File sourceFile = findSourceFile(parent, className);
+        final File sourceFile = findSourceFile(parent, classNameParts[0], (String) attributes.get(ATTR_TYPE));
 
-        try {
-            return createBlock(parent, "listing", getContent(sourceFile));
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not find file " + sourceFile);
+        String content = getContent(sourceFile);
+
+        if (memberName == null) {
+            if (attributes.containsKey(ATTR_TAGS)) {
+                Set<String> tags = new HashSet<String>(Arrays.asList(((String) attributes.get(ATTR_TAGS)).split(" *, *")));
+                content = new TagFilter(tags).filterTags(content);
+            }
         }
+
+        return createBlock(parent, "listing", content);
     }
 
-    private String getContent(File sourceFile) throws IOException {
+    private String getContent(File sourceFile) {
 
         final StringBuilder sb = new StringBuilder((int) sourceFile.length());
 
-        final FileReader in = new FileReader(sourceFile);
+        final FileReader in;
+        try {
+            in = new FileReader(sourceFile);
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("Source file " + sourceFile + " not found!");
+        }
         final char[] buf = new char[32];
         try {
             int charsRead = in.read(buf);
@@ -41,18 +65,25 @@ public class SourceBlockMacro extends BlockMacroProcessor {
                 sb.append(buf, 0, charsRead);
                 charsRead = in.read(buf);
             }
+        } catch (IOException e) {
+            throw new IllegalStateException("Unexpected exception reading source file " + sourceFile);
         } finally {
-            in.close();
+            try {
+                in.close();
+            } catch (Exception e) {
+                // We would have to log if we had a logger
+            }
         }
         return sb.toString();
     }
 
-    private File findSourceFile(StructuralNode parent, String className) {
-
+    private File findSourceFile(StructuralNode parent, String className, String type) {
         File sourceBaseDir = getSourceBaseDir(parent);
-        String path = extractPath(className);
-
-        return new SourceFileLocator(sourceBaseDir, path).findSourceFile();
+        File sourceFile = new SourceFileLocator(sourceBaseDir, className, type).findSourceFile();
+        if (sourceFile == null) {
+            throw new IllegalArgumentException("File for class " + className + " not found!");
+        }
+        return sourceFile;
     }
 
 
@@ -62,13 +93,19 @@ public class SourceBlockMacro extends BlockMacroProcessor {
             return new File(sourceBaseDir);
         }
 
-        return new File((String) parent.getAttr("docdir", null, true));
+        File docdir = new File((String) parent.getAttr("docdir", null, true));
+        return findSourceBaseDir(docdir);
     }
 
-    private String extractPath(String className) {
-        String[] parts = className.split("$");
-        String outerClassName = parts[0];
-        return outerClassName.replaceAll("\\.", "/") + ".java";
+    private File findSourceBaseDir(File docDir) {
+        if (docDir.getName().equals("src")) {
+            return docDir;
+        }
+        if (docDir.getParent() == null) {
+            // Not found
+            return null;
+        }
+        return findSourceBaseDir(docDir.getParentFile());
     }
 
 

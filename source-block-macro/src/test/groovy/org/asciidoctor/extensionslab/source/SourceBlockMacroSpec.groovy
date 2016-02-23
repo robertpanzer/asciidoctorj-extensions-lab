@@ -24,8 +24,26 @@ class SourceBlockMacroSpec extends Specification {
                 OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
         String listingContent = document.select('pre').text()
         then:
-        listingContent.replaceAll('\\n', '') == javaContent.replaceAll('\\n', '')
+        listingContent.replaceAll('[\\n\\r]', '') == javaContent.replaceAll('[\\n\\r]', '')
 
+    }
+
+    def 'should filter via tags'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod1() {
+        // A test method
+}'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/taginclude.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select('pre').text().replaceAll(' ', '') == javaContent.replaceAll(' ', '')
     }
 
 }

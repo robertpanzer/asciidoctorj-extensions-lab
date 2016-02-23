@@ -8,42 +8,17 @@ public class SourceFileLocator {
 
     private final String relativeFileName;
 
-    public SourceFileLocator(File baseDir, String relativeFileName) {
-        this.relativeFileName = relativeFileName;
-
-        File dynamicSourceBaseDir = findSourceBaseDir(baseDir);
-
-        if (dynamicSourceBaseDir == null) {
-            throw new IllegalStateException("Could not determine source base dir. Please define document attribute 'source-base-dir' to the localion where the source files are stored, e.g. ':source-base-dir: /dev/my-project/src'.");
-        }
-        this.sourceBaseDir = dynamicSourceBaseDir;
+    public SourceFileLocator(File baseDir, String className, String type) {
+        this.relativeFileName = extractPath(className, type);
+        this.sourceBaseDir = baseDir;
     }
 
-    private File findSourceBaseDir(File docDir) {
-        if (docDir.getName().equals("src")) {
-            return docDir;
-        }
-        if (docDir.getParent() == null) {
-            // Not found
-            return null;
-        }
-        return findSourceBaseDir(docDir.getParentFile());
+    private String extractPath(String className, String type) {
+        return className.replaceAll("\\.", "/") + "." + type;
     }
-
 
     public File findSourceFile() {
-
-        File current = new File(sourceBaseDir, relativeFileName);
-        if (current.exists()) {
-            return current;
-        }
-
-        for (File child: sourceBaseDir.listFiles()) {
-            if (child.isDirectory()) {
-                return findRecursively(child, relativeFileName);
-            }
-        }
-        return null;
+        return findRecursively(sourceBaseDir, relativeFileName);
     }
 
     private File findRecursively(File sourceBaseDir, String path) {
@@ -53,14 +28,17 @@ public class SourceFileLocator {
                 return child;
             }
             if (child.isDirectory()) {
-                return findRecursively(child, path);
+                File f = findRecursively(child, path);
+                if (f != null) {
+                    return f;
+                }
             }
         }
         return null;
     }
 
-    public static boolean matches(File child, String relativePath) {
-        String normalizedChild = child.getAbsolutePath().replaceAll("\\\\", "/");
+    public static boolean matches(File file, String relativePath) {
+        String normalizedChild = file.getAbsolutePath().replaceAll("\\\\", "/");
         String normalizedRelativePath = relativePath.replaceAll("\\\\", "/");
         return normalizedChild.endsWith(normalizedRelativePath);
     }
