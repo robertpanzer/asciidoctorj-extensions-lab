@@ -1,18 +1,16 @@
 package org.asciidoctor.extensionslab.source;
 
 import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.extension.DefaultAttributes;
-import org.asciidoctor.extension.Name;
+import org.asciidoctor.ast.AbstractBlock;
+import org.asciidoctor.extension.BlockMacroProcessor;
 import org.asciidoctor.extension.spi.ExtensionRegistry;
 
-@Name("source")
-@DefaultAttributes({
-//        @DefaultAttribute(key = 'columns', value = '3')
-})
+import java.util.Map;
+
 public class ExtensionRegistrar implements ExtensionRegistry {
 
     @Override
     public void register(Asciidoctor asciidoctor) {
-        asciidoctor.javaExtensionRegistry().blockMacro(SourceBlockMacro.class);
+        asciidoctor.javaExtensionRegistry().blockMacro(new SourceBlockMacro());
     }
 }

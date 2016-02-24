@@ -11,6 +11,11 @@ import spock.lang.Specification
 @Log
 class SourceBlockMacroSpec extends Specification {
 
+
+    public static final String PRE = 'pre'
+    public static final String NEWLINE_RE = '[\\n\\r]'
+    public static final String BLANK_RE = ' '
+
     def 'should insert full file contents from main java sources'() {
 
         given:
@@ -22,13 +27,13 @@ class SourceBlockMacroSpec extends Specification {
         Document document = Jsoup.parse(asciidoctor.convertFile(
                 new File('src/test/resources/fullinclude.adoc'),
                 OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
-        String listingContent = document.select('pre').text()
+        String listingContent = document.select(PRE).text()
         then:
-        listingContent.replaceAll('[\\n\\r]', '') == javaContent.replaceAll('[\\n\\r]', '')
+        listingContent.replaceAll(NEWLINE_RE, '') == javaContent.replaceAll(NEWLINE_RE, '')
 
     }
 
-    def 'should filter via tags'() {
+    def 'should filter via methods'() {
 
         given:
         Asciidoctor asciidoctor = Asciidoctor.Factory.create()
@@ -39,11 +44,11 @@ class SourceBlockMacroSpec extends Specification {
 
         when:
         Document document = Jsoup.parse(asciidoctor.convertFile(
-                new File('src/test/resources/taginclude.adoc'),
+                new File('src/test/resources/methodinclude.adoc'),
                 OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
 
         then:
-        document.select('pre').text().replaceAll(' ', '') == javaContent.replaceAll(' ', '')
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
     }
 
 }

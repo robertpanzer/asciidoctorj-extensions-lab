@@ -1,5 +1,14 @@
+apply plugin: 'antlr'
+
+
 dependencies {
-    //compile "org.asciidoctor:asciidoctorj:1.5.4"
+    compile "org.asciidoctor:asciidoctorj:1.5.4"
 
     testCompile "org.jsoup:jsoup:$jsoupVersion"
+
+    antlr 'org.antlr:antlr4:4.5.2-1'
+}
+
+generateGrammarSource {
+    outputDirectory = new File("${project.buildDir}/generated-src/antlr/main/org/asciidoctor/extensionslab/source/java8grammar")
 }

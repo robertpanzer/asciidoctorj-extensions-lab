@@ -1,51 +1,54 @@
 package org.asciidoctor.extensionslab.source;
 
-import org.asciidoctor.ast.StructuralNode;
+import org.asciidoctor.ast.AbstractBlock;
 import org.asciidoctor.extension.BlockMacroProcessor;
-import org.asciidoctor.extension.DefaultAttribute;
-import org.asciidoctor.extension.DefaultAttributes;
-import org.asciidoctor.extension.Name;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Name("source")
-@DefaultAttributes({
-    @DefaultAttribute(key = SourceBlockMacro.ATTR_TYPE, value = "java")
-})
 public class SourceBlockMacro extends BlockMacroProcessor {
 
     static final String ATTR_TYPE = "type";
 
-    static final String ATTR_TAGS = "tags";
+    static final Map<String, Object> config = new HashMap<String, Object>();
+
+    static {
+        Map<String, Object> defaultAttrs = new HashMap<String, Object>();
+        defaultAttrs.put(ATTR_TYPE, "java");
+        config.put("default_attrs", defaultAttrs);
+    }
+
+    public SourceBlockMacro() {
+        super("source", config);
+    }
 
     @Override
-    public Object process(StructuralNode parent, String target, Map<String, Object> attributes) {
+    public Object process(AbstractBlock parent, String target, Map<String, Object> attributes) {
 
         final String className = extractClassName(target);
         final String[] classNameParts = className.split("\\$");
 
         final String memberName = extractMemberName(target);
 
-        final File sourceFile = findSourceFile(parent, classNameParts[0], (String) attributes.get(ATTR_TYPE));
+        final String type = (String) attributes.get(ATTR_TYPE);
+
+        final File sourceFile = findSourceFile(parent, classNameParts[0], type);
 
         String content = getContent(sourceFile);
 
-        if (memberName == null) {
-            if (attributes.containsKey(ATTR_TAGS)) {
-                Set<String> tags = new HashSet<String>(Arrays.asList(((String) attributes.get(ATTR_TAGS)).split(" *, *")));
-                content = new TagFilter(tags).filterTags(content);
-            }
+        if (memberName != null) {
+            content = new JavaMethodFilter().filterMethod(content, memberName);
         }
 
-        return createBlock(parent, "listing", content);
+        return createBlock(parent, "listing", content, new HashMap<String, Object>(), new HashMap<Object, Object>());
     }
 
     private String getContent(File sourceFile) {
@@ -77,7 +80,7 @@ public class SourceBlockMacro extends BlockMacroProcessor {
         return sb.toString();
     }
 
-    private File findSourceFile(StructuralNode parent, String className, String type) {
+    private File findSourceFile(AbstractBlock parent, String className, String type) {
         File sourceBaseDir = getSourceBaseDir(parent);
         File sourceFile = new SourceFileLocator(sourceBaseDir, className, type).findSourceFile();
         if (sourceFile == null) {
@@ -87,7 +90,7 @@ public class SourceBlockMacro extends BlockMacroProcessor {
     }
 
 
-    private File getSourceBaseDir(StructuralNode parent) {
+    private File getSourceBaseDir(AbstractBlock parent) {
         String sourceBaseDir = (String) parent.getAttr("source-base-dir", null, true);
         if (sourceBaseDir != null) {
             return new File(sourceBaseDir);
@@ -116,7 +119,7 @@ public class SourceBlockMacro extends BlockMacroProcessor {
     private String extractMemberName(String target) {
         String[] parts = target.split("#");
         if (parts.length > 1) {
-            return parts[2];
+            return parts[1];
         } else {
             return null;
         }
