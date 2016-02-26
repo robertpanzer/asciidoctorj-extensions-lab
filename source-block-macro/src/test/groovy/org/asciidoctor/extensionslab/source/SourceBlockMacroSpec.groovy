@@ -66,6 +66,21 @@ class SourceBlockMacroSpec extends Specification {
         document.select(PRE).select(CODE).attr(DATA_LANG) == JAVA
     }
 
+    def 'should throw an exception if method is not found'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/unresolvedmethodinclude.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        IllegalArgumentException e = thrown(IllegalArgumentException)
+        e.cause.message.contains "Method 'testMethod1' not found!"
+    }
+
     def 'should filter via tags'() {
 
         given:

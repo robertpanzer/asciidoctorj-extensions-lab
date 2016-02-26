@@ -50,6 +50,10 @@ public class JavaMethodFilter {
         parser.setBuildParseTree(true);
         parser.compilationUnit();
 
+        if (filterListener.getInterval() == null) {
+            throw new IllegalArgumentException("Method '" + methodName + "' not found!");
+        }
+
         final Token startToken = tokenStream.get(filterListener.getInterval().a);
         final Token endToken = tokenStream.get(filterListener.getInterval().b);
 
