@@ -2,13 +2,11 @@ package org.asciidoctor.extensionslab.source;
 
 import org.asciidoctor.ast.AbstractBlock;
 import org.asciidoctor.extension.BlockMacroProcessor;
-import org.asciidoctor.extension.Processor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +34,6 @@ public class SourceBlockMacro extends BlockMacroProcessor {
 
     @Override
     public Object process(AbstractBlock parent, String target, Map<String, Object> attributes) {
-
         final String className = extractClassName(target);
         final String[] classNameParts = className.split("\\$");
 
@@ -57,7 +54,14 @@ public class SourceBlockMacro extends BlockMacroProcessor {
             }
         }
 
-        return createBlock(parent, "listing", content, new HashMap<String, Object>(), new HashMap<Object, Object>());
+        Map<String,Object> newAttributes = new HashMap<String, Object>();
+        if (attributes.containsKey("title")) {
+            newAttributes.put("title", attributes.get("title"));
+        }
+        newAttributes.put("language", type);
+        newAttributes.put("style", "source");
+
+        return createBlock(parent, "listing", content, newAttributes, new HashMap<Object, Object>());
     }
 
     private String getContent(File sourceFile) {
