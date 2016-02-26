@@ -72,9 +72,9 @@ class SourceBlockMacroSpec extends Specification {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create()
 
         when:
-        Document document = Jsoup.parse(asciidoctor.convertFile(
+        asciidoctor.convertFile(
                 new File('src/test/resources/unresolvedmethodinclude.adoc'),
-                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false))
 
         then:
         IllegalArgumentException e = thrown(IllegalArgumentException)
