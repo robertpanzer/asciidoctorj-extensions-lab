@@ -2,6 +2,7 @@ package org.asciidoctor.extensionslab.source;
 
 import org.asciidoctor.ast.AbstractBlock;
 import org.asciidoctor.extension.BlockMacroProcessor;
+import org.asciidoctor.extension.Processor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,12 +19,15 @@ public class SourceBlockMacro extends BlockMacroProcessor {
 
     static final String ATTR_TYPE = "type";
 
+    static final String ATTR_TAGS = "tags";
+
     static final Map<String, Object> config = new HashMap<String, Object>();
 
     static {
         Map<String, Object> defaultAttrs = new HashMap<String, Object>();
         defaultAttrs.put(ATTR_TYPE, "java");
         config.put("default_attrs", defaultAttrs);
+        config.put("content_model", ":attributes");
     }
 
     public SourceBlockMacro() {
@@ -46,6 +50,11 @@ public class SourceBlockMacro extends BlockMacroProcessor {
 
         if (memberName != null) {
             content = new JavaMethodFilter().filterMethod(content, memberName);
+        } else {
+            if (attributes.containsKey(ATTR_TAGS)) {
+                Set<String> tags = new HashSet<String>(Arrays.asList(((String) attributes.get(ATTR_TAGS)).split(" *, *")));
+                content = new TagFilter(tags).filterTags(content);
+            }
         }
 
         return createBlock(parent, "listing", content, new HashMap<String, Object>(), new HashMap<Object, Object>());
