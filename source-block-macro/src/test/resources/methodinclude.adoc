@@ -4,4 +4,4 @@
 This test includes a only parts of a source file.
 
 .A very interesting method
-source::testsources.TestClass#testMethod1[]
+source::testsources.TestClass#testMethod2[]

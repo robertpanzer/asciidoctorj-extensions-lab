@@ -49,7 +49,7 @@ class SourceBlockMacroSpec extends Specification {
         given:
         Asciidoctor asciidoctor = Asciidoctor.Factory.create()
 
-        String javaContent = '''public void testMethod1() {
+        String javaContent = '''public void testMethod2() {
         // A test method
 }'''
 
@@ -81,7 +81,7 @@ class SourceBlockMacroSpec extends Specification {
                 OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
 
         then:
-        document.select('pre').text().replaceAll(' ', '') == javaContent.replaceAll(' ', '')
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
     }
 
 }
