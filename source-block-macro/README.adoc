@@ -28,7 +28,7 @@ Say that all your sources are in a directory `my-sources` relative to the curren
  = My awesome document
  :source-base-dir: my-sources
  {empty}
- source::foo.Bar[]
+ java::foo.Bar[]
 
 == Insert only a method of a class
 
@@ -36,13 +36,13 @@ When you only want to insert a certain method of a class you would usually make 
 The source macro uses an embedded antlr based Java8 parser to parse the source file and cut out only the selected method.
 To show only the method `myMethod` of the class `foo.Bar` you can directly select the method like this:
 
-  source::foo.Bar#myMethod[]
+  java::foo.Bar#myMethod[]
 
 == Insert parts of a source files via tags
 
 As with the normal include macro you can also define tags to include parts of a document:
 
-  source::foo.Bar[tags="tagA, tagB"]
+  java::foo.Bar[tags="tagA, tagB"]
 
 
 == Using the macro

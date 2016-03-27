@@ -2,4 +2,4 @@
 
 This test includes a only parts of a source file.
 
-source::testsources.TestClassWithTags[tags="testMethod1 , andAnotherTag"]
+java::testsources.TestClassWithTags[tags="testMethod1 , andAnotherTag"]

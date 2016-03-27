@@ -2,4 +2,4 @@
 
 This test includes a complete source file.
 
-source::org.asciidoctor.extensionslab.source.ExtensionRegistrar[]
+java::org.asciidoctor.extensionslab.source.ExtensionRegistrar[]

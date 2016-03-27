@@ -13,9 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SourceBlockMacro extends BlockMacroProcessor {
-
-    static final String ATTR_TYPE = "type";
+public class JavaSourceBlockMacro extends BlockMacroProcessor {
 
     static final String ATTR_TAGS = "tags";
 
@@ -23,13 +21,12 @@ public class SourceBlockMacro extends BlockMacroProcessor {
 
     static {
         Map<String, Object> defaultAttrs = new HashMap<String, Object>();
-        defaultAttrs.put(ATTR_TYPE, "java");
         config.put("default_attrs", defaultAttrs);
         config.put("content_model", ":attributes");
     }
 
-    public SourceBlockMacro() {
-        super("source", config);
+    public JavaSourceBlockMacro() {
+        super("java", config);
     }
 
     @Override
@@ -39,9 +36,7 @@ public class SourceBlockMacro extends BlockMacroProcessor {
 
         final String memberName = extractMemberName(target);
 
-        final String type = (String) attributes.get(ATTR_TYPE);
-
-        final File sourceFile = findSourceFile(parent, classNameParts[0], type);
+        final File sourceFile = findSourceFile(parent, classNameParts[0]);
 
         String content = getContent(sourceFile);
 
@@ -58,7 +53,7 @@ public class SourceBlockMacro extends BlockMacroProcessor {
         if (attributes.containsKey("title")) {
             newAttributes.put("title", attributes.get("title"));
         }
-        newAttributes.put("language", type);
+        newAttributes.put("language", "java");
         newAttributes.put("style", "source");
 
         return createBlock(parent, "listing", content, newAttributes, new HashMap<Object, Object>());
@@ -93,9 +88,9 @@ public class SourceBlockMacro extends BlockMacroProcessor {
         return sb.toString();
     }
 
-    private File findSourceFile(AbstractBlock parent, String className, String type) {
+    private File findSourceFile(AbstractBlock parent, String className) {
         File sourceBaseDir = getSourceBaseDir(parent);
-        File sourceFile = new SourceFileLocator(sourceBaseDir, className, type).findSourceFile();
+        File sourceFile = new SourceFileLocator(sourceBaseDir, className, "java").findSourceFile();
         if (sourceFile == null) {
             throw new IllegalArgumentException("File for class " + className + " not found!");
         }
