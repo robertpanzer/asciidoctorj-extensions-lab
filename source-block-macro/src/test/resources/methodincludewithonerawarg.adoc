@@ -1,0 +1,7 @@
+= Including an entire source file
+:source-highlighter: coderay
+
+This test includes a only parts of a source file.
+
+.A method with one raw arg
+java::testsources.TestClass#testMethod3(List)[]

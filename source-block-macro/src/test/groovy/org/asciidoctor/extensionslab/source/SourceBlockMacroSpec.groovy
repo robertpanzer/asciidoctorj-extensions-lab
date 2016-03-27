@@ -44,7 +44,7 @@ class SourceBlockMacroSpec extends Specification {
 
     }
 
-    def 'should filter via methods'() {
+    def 'should filter via methods without parameter list'() {
 
         given:
         Asciidoctor asciidoctor = Asciidoctor.Factory.create()
@@ -64,6 +64,173 @@ class SourceBlockMacroSpec extends Specification {
         document.select(PRE).hasClass(CODERAY)
         document.select(PRE).hasClass(HIGHLIGHT)
         document.select(PRE).select(CODE).attr(DATA_LANG) == JAVA
+    }
+
+    def 'should filter via methods with no arguments'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod3() {
+        // A test method without arguments
+}'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithnoargs.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+        document.select(LISTINGBLOCK).select(TITLE).text() == 'A method with no args'
+    }
+
+    def 'should filter via methods with one primitive argument'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod3(int x) {
+        // A test method with one int arg
+}'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithoneprimitivearg.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+        document.select(LISTINGBLOCK).select(TITLE).text() == 'A method with one int arg'
+    }
+
+    def 'should filter via methods with one raw argument'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod3(java.util.List list) {
+        // A test method with one raw List arg
+}'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithonerawarg.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+        document.select(LISTINGBLOCK).select(TITLE).text() == 'A method with one raw arg'
+    }
+
+    def 'should filter via methods with one parameterized argument'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod3(java.util.Map<String, java.util.Object> list) {
+        // A test method with one parameterized Map arg
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithoneparameterizedarg.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+        document.select(LISTINGBLOCK).select(TITLE).text() == 'A method with one parameterized arg'
+    }
+
+    def 'should filter via methods with one primitive array argument'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod3(float [ ] floats) {
+        // A test method with an array of floats
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithoneprimitivearrayarg.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+        document.select(LISTINGBLOCK).select(TITLE).text() == 'A method with one float array arg'
+    }
+
+    def 'should filter via methods with a two dim array argument of objects'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod3(java.awt.Frame [][] frames) {
+        // A test method with an 2 dim array of frames
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithonetwodimensionalarrayarg.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+    }
+
+    def 'should filter via methods with a generic type variable'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public <T> void testMethod3(T t) {
+        // A method with a T
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithgenericparam.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+    }
+
+    def 'should filter via methods with multiple params'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public <T> void testMethod3(T t, boolean[] b, List<Integer> l, int i) {
+        // A method with a T
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithmultipleargs.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+    }
+
+    def 'should filter via methods with a vararg param'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public <T> void testMethod3(int... ints) {
+        // A method with a vararg
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithvararg.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
     }
 
     def 'should throw an exception if method is not found'() {

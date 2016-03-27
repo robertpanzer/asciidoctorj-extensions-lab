@@ -34,9 +34,22 @@ Say that all your sources are in a directory `my-sources` relative to the curren
 
 When you only want to insert a certain method of a class you would usually make use of tags or line numbers to select parts of the source file.
 The source macro uses an embedded antlr based Java8 parser to parse the source file and cut out only the selected method.
-To show only the method `myMethod` of the class `foo.Bar` you can directly select the method like this:
+When the class contains only one method with the given name you can include it without defining a paramter list like this:
 
   java::foo.Bar#myMethod[]
+
+If there are multiple methods `myMethod` you can specify the method by defining the formal parameters in braces:
+
+  java::foo.Bar#myMethod(int,Object[],List,T,String...)[]
+
+The formal parameters must not contain any blanks.
+
+Reference types must contain only the simple class name, i.e. `Object` instead of `java.util.Object`.
+
+Parameterized types like `Map<String, Object>` are referenced only by `Map`.
+This is already a unique identification as there can be no other method that uses a `Map<Integer, Object>` instead for example.
+
+Generic parameters are just referenced by the name, here `T`.
 
 == Insert parts of a source files via tags
 

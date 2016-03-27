@@ -1,5 +1,9 @@
 apply plugin: 'antlr'
 
+// NOTE sourceCompatibility & targetCompatibility are set in gradle.properties to meet requirements of Gradle
+// Must redefine here to work around a bug in the Eclipse plugin
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+
 
 dependencies {
     compile "org.asciidoctor:asciidoctorj:1.5.4"
