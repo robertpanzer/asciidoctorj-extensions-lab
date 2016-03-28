@@ -36,7 +36,7 @@ public class JavaMethodFilter {
             if (currentMethodName.equals(methodName) && matchesParameters(ctx)) {
                 if (interval != null) {
                     throw new IllegalArgumentException("Multiple matching methods found for methodName " + methodName +
-                        parameterTypes == null ? "" : "(" + String.join(", ", Arrays.asList(parameterTypes)));
+                        (parameterTypes == null ? "" : "(" + String.join(", ", Arrays.asList(parameterTypes))));
                 }
                 interval = ctx.getSourceInterval();
             }

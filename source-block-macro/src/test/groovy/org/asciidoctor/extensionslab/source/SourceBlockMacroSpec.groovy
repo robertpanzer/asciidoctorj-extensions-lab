@@ -233,6 +233,20 @@ class SourceBlockMacroSpec extends Specification {
         document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
     }
 
+    def 'should throw an exception with multiple matches'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        when:
+        Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludewithmultiplematches.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
     def 'should throw an exception if method is not found'() {
 
         given:
