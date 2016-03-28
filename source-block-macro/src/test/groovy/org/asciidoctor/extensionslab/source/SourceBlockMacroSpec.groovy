@@ -247,6 +247,61 @@ class SourceBlockMacroSpec extends Specification {
         thrown(IllegalArgumentException)
     }
 
+    def 'should filter via methods from outer class if inner class defines same method'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod() {
+        System.out.println("The outer method");
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludeinnerclassesfromouterclass.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+    }
+
+    def 'should filter via methods from inner class if inner class defines same method'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod() {
+        System.out.println("The inner method");
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludeinnerclassesfrominnerclass.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+    }
+
+    def 'should filter via methods from inner class if inner inner class defines same method'() {
+
+        given:
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+
+        String javaContent = '''public void testMethod() {
+        System.out.println("The inner inner method");
+    }'''
+
+        when:
+        Document document = Jsoup.parse(asciidoctor.convertFile(
+                new File('src/test/resources/methodincludeinnerclassesfrominnerinnerclass.adoc'),
+                OptionsBuilder.options().safe(SafeMode.UNSAFE).toFile(false)))
+
+        then:
+        document.select(PRE).text().replaceAll(BLANK_RE, '') == javaContent.replaceAll(BLANK_RE, '')
+    }
+
+
     def 'should throw an exception if method is not found'() {
 
         given:

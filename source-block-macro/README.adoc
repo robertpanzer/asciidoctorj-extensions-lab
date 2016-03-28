@@ -38,6 +38,8 @@ When the class contains only one method with the given name you can include it w
 
   java::foo.Bar#myMethod[]
 
+=== Including overloaded methods
+
 If there are multiple methods `myMethod` you can specify the method by defining the formal parameters in braces:
 
   java::foo.Bar#myMethod(int,Object[],List,T,String...)[]
@@ -50,6 +52,15 @@ Parameterized types like `Map<String, Object>` are referenced only by `Map`.
 This is already a unique identification as there can be no other method that uses a `Map<Integer, Object>` instead for example.
 
 Generic parameters are just referenced by the name, here `T`.
+
+=== Include methods from inner classes
+
+When a method from an inner class should be included the inner class has to be separated by using a `$`.
+The usage of '$' reflects how the Java compiler maps class names of inner classes.
+
+That means if you want to include the method `myMethod` from the inner class `Inner` that is part of the outer class `foo.bar.Outer` the macro call has to look like this:
+
+  java::foo.bar.Outer$Inner#myMethod[]
 
 == Insert parts of a source files via tags
 

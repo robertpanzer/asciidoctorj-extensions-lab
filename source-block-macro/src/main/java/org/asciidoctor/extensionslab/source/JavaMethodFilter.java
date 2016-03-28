@@ -1,5 +1,6 @@
 package org.asciidoctor.extensionslab.source;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.asciidoctor.extensionslab.source.java8grammar.*;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -11,12 +12,18 @@ import org.antlr.v4.runtime.misc.Interval;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+
+import static java.util.stream.Collectors.joining;
 
 public class JavaMethodFilter {
 
     private class MethodFilterListener extends Java8BaseListener {
+
+        private final String className;
 
         private final String methodName;
 
@@ -24,14 +31,55 @@ public class JavaMethodFilter {
 
         private Interval interval;
 
-        MethodFilterListener(String methodName, String[] parameterTypes) {
+        private String currentPackageName = null;
+
+        private LinkedList<String> currentClasses = new LinkedList<>();
+
+        private String currentFullyQualifiedClassName = "";
+
+        MethodFilterListener(String className, String methodName, String[] parameterTypes) {
+            this.className = className;
             this.methodName = methodName;
             this.parameterTypes = parameterTypes;
 
         }
 
         @Override
+        public void exitPackageDeclaration(Java8Parser.PackageDeclarationContext ctx) {
+            if (ctx.Identifier() != null) {
+                currentPackageName = ctx.Identifier().stream().map(TerminalNode::getSymbol).map(Token::getText).collect(joining("."));
+            }
+        }
+
+        @Override
+        public void enterClassBody(Java8Parser.ClassBodyContext ctx) {
+            if (ctx.getParent() instanceof Java8Parser.NormalClassDeclarationContext) {
+                currentClasses.addLast(Java8Parser.NormalClassDeclarationContext.class.cast(ctx.getParent()).Identifier().getSymbol().getText());
+            } else if (ctx.getParent() instanceof  Java8Parser.EnumConstantContext) {
+                currentClasses.addLast(Java8Parser.EnumConstantContext.class.cast(ctx.getParent()).Identifier().getSymbol().getText());
+            } else {
+                currentClasses.addLast("?");
+            }
+
+            currentFullyQualifiedClassName = (currentPackageName == null ? "" : (currentPackageName + "."))
+                + String.join("$", currentClasses);
+        }
+
+        @Override
+        public void exitClassBody(Java8Parser.ClassBodyContext ctx) {
+            currentClasses.removeLast();
+
+            currentFullyQualifiedClassName = (currentPackageName == null ? "" : (currentPackageName + "."))
+                + String.join("$", currentClasses);
+        }
+
+        @Override
         public void exitMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
+
+            if (!currentFullyQualifiedClassName.equals(className)) {
+                return;
+            }
+
             String currentMethodName = ctx.methodHeader().methodDeclarator().Identifier().getSymbol().getText();
             if (currentMethodName.equals(methodName) && matchesParameters(ctx)) {
                 if (interval != null) {
@@ -200,7 +248,7 @@ public class JavaMethodFilter {
 
     }
 
-    public String filterMethod(String compilationUnit, String methodNameAndParams) {
+    public String filterMethod(String compilationUnit, String className, String methodNameAndParams) {
 
         final String methodName = extractMethodName(methodNameAndParams);
         final String[] params = extractParams(methodNameAndParams);
@@ -209,7 +257,7 @@ public class JavaMethodFilter {
         TokenStream tokenStream = new CommonTokenStream(new Java8Lexer(in));
         Java8Parser parser = new Java8Parser(tokenStream);
 
-        MethodFilterListener filterListener = new MethodFilterListener(methodName, params);
+        MethodFilterListener filterListener = new MethodFilterListener(className, methodName, params);
 
         parser.addParseListener(filterListener);
         parser.setBuildParseTree(true);

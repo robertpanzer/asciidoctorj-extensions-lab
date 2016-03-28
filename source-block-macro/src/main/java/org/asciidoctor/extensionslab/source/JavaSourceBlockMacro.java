@@ -41,7 +41,7 @@ public class JavaSourceBlockMacro extends BlockMacroProcessor {
         String content = getContent(sourceFile);
 
         if (memberName != null) {
-            content = new JavaMethodFilter().filterMethod(content, memberName);
+            content = new JavaMethodFilter().filterMethod(content, className, memberName);
         } else {
             if (attributes.containsKey(ATTR_TAGS)) {
                 Set<String> tags = new HashSet<String>(Arrays.asList(((String) attributes.get(ATTR_TAGS)).split(" *, *")));
